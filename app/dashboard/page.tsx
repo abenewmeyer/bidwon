@@ -1,33 +1,41 @@
-﻿import { Zap, ChevronRight } from 'lucide-react';
+﻿"use client";
+
+import { useState } from 'react';
+import { Zap, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
+  const [isAnnual, setIsAnnual] = useState(true);
+
   const tiers = [
     {
       name: 'Tactical',
-      price: '$14,900',
-      interval: '/year',
+      monthlyPrice: '$149',
+      annualPrice: '$1,490',
       description: 'Daily SAM.gov sync (5 NAICS), 15 Scored Opps, 5 AI Bids/mo.',
-      href: process.env.NEXT_PUBLIC_STRIPE_TACTICAL_URL || '#',
+      monthlyHref: process.env.NEXT_PUBLIC_STRIPE_TACTICAL_MONTHLY_URL || '#',
+      annualHref: process.env.NEXT_PUBLIC_STRIPE_TACTICAL_URL || '#',
       features: ['Daily SAM.gov sync', 'Up to 5 NAICS codes', '15 Scored Opportunities', '5 AI-Drafted Bids/month'],
       popular: false,
     },
     {
       name: 'Strategic',
-      price: '$49,700',
-      interval: '/year',
+      monthlyPrice: '$497',
+      annualPrice: '$4,970',
       description: '25 NAICS codes, 100 Scored Opps, 25 AI Bids/mo + Vector Vault.',
-      href: process.env.NEXT_PUBLIC_STRIPE_STRATEGIC_URL || '#',
+      monthlyHref: process.env.NEXT_PUBLIC_STRIPE_STRATEGIC_MONTHLY_URL || '#',
+      annualHref: process.env.NEXT_PUBLIC_STRIPE_STRATEGIC_URL || '#',
       features: ['Advanced SAM.gov sync', 'Up to 25 NAICS codes', '100 Scored Opportunities', '25 AI-Drafted Bids/month', 'Private Vector Vault'],
       popular: true,
     },
     {
       name: 'Sovereign (Enterprise)',
-      price: '$249,700',
-      interval: '/year',
-      description: 'Unlimited Bids, Agency Dashboard, Priority Llama-3-70B processing.',
-      href: process.env.NEXT_PUBLIC_STRIPE_SOVEREIGN_URL || '#',
-      features: ['Unlimited AI-Drafted Bids', 'Agency Dashboard (10 Sub-users)', 'Full API Access', 'Priority Llama 3-70B Processing'],
+      monthlyPrice: '$2,497',
+      annualPrice: '$24,970',
+      description: 'Unlimited Bids, Agency Dashboard, Priority AI Model Processing.',
+      monthlyHref: process.env.NEXT_PUBLIC_STRIPE_SOVEREIGN_MONTHLY_URL || '#',
+      annualHref: process.env.NEXT_PUBLIC_STRIPE_SOVEREIGN_URL || '#',
+      features: ['Unlimited AI-Drafted Bids', 'Agency Dashboard (10 Sub-users)', 'Full API Access', 'Priority AI Model Processing'],
       popular: false,
     }
   ];
@@ -77,7 +85,23 @@ export default function LandingPage() {
             <h2 className="text-base font-semibold leading-7 text-indigo-400">Straight Line Acquisition</h2>
             <p className="mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl">Select your deployment tier</p>
           </div>
-          <div className="isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+
+          <div className="mt-6 flex justify-center">
+            <div className="grid grid-cols-2 gap-x-1 rounded-full p-1 text-center text-xs font-semibold leading-5 ring-1 ring-inset ring-slate-800 bg-slate-900/50">
+              <button 
+                onClick={() => setIsAnnual(false)} 
+                className={`cursor-pointer rounded-full px-4 py-2 transition-colors ${!isAnnual ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+                Monthly
+              </button>
+              <button 
+                onClick={() => setIsAnnual(true)} 
+                className={`cursor-pointer rounded-full px-4 py-2 transition-colors ${isAnnual ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
+                Annually
+              </button>
+            </div>
+          </div>
+
+          <div className="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
             {tiers.map((tier) => (
               <div key={tier.name} className={`rounded-3xl p-8 ring-1 transition-all ${tier.popular ? 'bg-slate-800/80 ring-indigo-500 shadow-2xl shadow-indigo-500/20 scale-105 z-10' : 'bg-slate-900/50 ring-slate-700 hover:ring-slate-500'}`}>
                 <h3 className="text-lg font-semibold leading-8 text-white flex justify-between items-center">
@@ -86,10 +110,10 @@ export default function LandingPage() {
                 </h3>
                 <p className="mt-4 text-sm leading-6 text-slate-400">{tier.description}</p>
                 <p className="mt-6 flex items-baseline gap-x-1">
-                  <span className="text-4xl font-bold tracking-tight text-white">{tier.price}</span>
-                  <span className="text-sm font-semibold leading-6 text-slate-400">{tier.interval}</span>
+                  <span className="text-4xl font-bold tracking-tight text-white">{isAnnual ? tier.annualPrice : tier.monthlyPrice}</span>
+                  <span className="text-sm font-semibold leading-6 text-slate-400">{isAnnual ? '/year' : '/month'}</span>
                 </p>
-                <a href={tier.href} className={`mt-6 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 transition-colors ${tier.popular ? 'bg-indigo-500 text-white hover:bg-indigo-400' : 'bg-slate-700 text-white hover:bg-slate-600'}`}>
+                <a href={isAnnual ? tier.annualHref : tier.monthlyHref} className={`mt-6 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 transition-colors ${tier.popular ? 'bg-indigo-500 text-white hover:bg-indigo-400' : 'bg-slate-700 text-white hover:bg-slate-600'}`}>
                   Secure Access
                 </a>
                 <ul className="mt-8 space-y-3 text-sm leading-6 text-slate-300">
