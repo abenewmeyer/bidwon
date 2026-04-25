@@ -1,272 +1,186 @@
-﻿'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Clock, Zap, ShieldCheck, FileText, Play, Users } from 'lucide-react';
-
-const popularNaics = [
-  { code: "624230", desc: "Emergency and Other Relief Services" },
-  { code: "236220", desc: "Commercial & Institutional Building Construction" },
-  { code: "541330", desc: "Engineering Services" },
-  { code: "562910", desc: "Remediation Services" },
-  { code: "541611", desc: "Administrative Management Consulting" },
-  { code: "561210", desc: "Facilities Support Services" },
-  { code: "237110", desc: "Water & Sewer Line Construction" },
-  { code: "541512", desc: "Computer Systems Design Services" },
-];
+﻿import Link from 'next/link';
+import { ArrowRight, CheckCircle2, ShieldAlert, Activity, Lock } from 'lucide-react';
 
 export default function LandingPage() {
-  const [selectedNaics, setSelectedNaics] = useState<string[]>([]);
-  const [isDemoRunning, setIsDemoRunning] = useState(false);
-  const [demoResults, setDemoResults] = useState<any>(null);
-  const [showBlur, setShowBlur] = useState(false);
-
-  const toggleNaics = (code: string) => {
-    if (selectedNaics.includes(code)) {
-      setSelectedNaics(selectedNaics.filter(c => c !== code));
-    } else if (selectedNaics.length < 5) {
-      setSelectedNaics([...selectedNaics, code]);
-    }
-  };
-
-  const runDemo = () => {
-    if (selectedNaics.length === 0) return;
-    setIsDemoRunning(true);
-
-    setTimeout(() => {
-      setDemoResults({
-        opportunities: [
-          {
-            title: "Public Assistance Technical Assistance and Consulting Services",
-            agency: "Federal Emergency Management Agency (FEMA)",
-            deadline: "May 28, 2026",
-            score: 93,
-            summary: "Excellent match for your selected NAICS codes. Strong set-aside eligibility with flexible place of performance.",
-            checklist: "SDVOSB / HUBZone eligible • Compliance checklist auto-generated",
-          },
-          {
-            title: "Disaster Recovery Construction Management & Safety Oversight",
-            agency: "U.S. Army Corps of Engineers",
-            deadline: "June 4, 2026",
-            score: 89,
-            summary: "High-potential opportunity matching multiple NAICS with focus on construction management and safety services.",
-            checklist: "Minority-owned preferences noted • Timeline risk flagged",
-          }
-        ]
-      });
-      setIsDemoRunning(false);
-      setTimeout(() => setShowBlur(true), 2800);
-    }, 1500);
-  };
-
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-950 font-sans">
-      {/* Modern Navigation */}
-      <nav className="bg-white border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="text-4xl font-bold tracking-tighter text-emerald-700">BidWon</div>
-          </div>
-          <Link 
-            href="/login"
-            className="px-8 py-3.5 text-sm font-semibold border border-zinc-300 rounded-2xl hover:bg-zinc-100 transition-colors"
-          >
-            Log In
+    <div className="min-h-screen bg-[#0B0F19] text-slate-50 font-sans selection:bg-blue-500 selection:text-white">
+      {/* Navigation */}
+      <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto border-b border-slate-800">
+        <div className="text-2xl font-black tracking-tighter text-white">
+          BID<span className="text-blue-500">WON</span>
+        </div>
+        <div className="space-x-6 flex items-center">
+          <Link href="/login" className="text-slate-400 hover:text-white font-medium transition-colors">
+            Client Login
+          </Link>
+          <Link href="#pricing" className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded transition-all shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+            Deploy Infrastructure
           </Link>
         </div>
       </nav>
 
-      {/* Hero - Clean & Premium */}
-      <header className="pt-28 pb-24 px-6 bg-gradient-to-br from-white via-zinc-50 to-emerald-50">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-white shadow-sm border border-emerald-100 text-emerald-700 text-sm font-semibold px-6 py-2 rounded-3xl mb-8">
-            FOR CERTIFIED SMALL CONTRACTORS • ANY NAICS • ANY SET-ASIDE
-          </div>
+      {/* Hero Section */}
+      <header className="px-6 py-24 max-w-6xl mx-auto text-center relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-blue-900/20 blur-[120px] rounded-full pointer-events-none"></div>
+        
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700 text-sm font-semibold text-blue-400 mb-8 backdrop-blur-sm">
+          <Activity className="w-4 h-4" /> Live SAM.gov Sync Active
+        </div>
+        
+        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight mb-8 text-white leading-tight">
+          Stop Bleeding Margins on <br className="hidden md:block" />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
+            Dead-End Government Bids.
+          </span>
+        </h1>
+        
+        <p className="text-xl md:text-2xl text-slate-400 mb-12 max-w-4xl mx-auto leading-relaxed">
+          The incumbent already has the contract. You are just filler. 
+          BidWon leverages native Llama 3-70B architecture and historical vector data to instantly draft 
+          highly targeted, technically superior proposals that actually compete.
+        </p>
 
-          <h1 className="text-6xl md:text-7xl font-bold tracking-tighter leading-none mb-8">
-            Stop missing federal contracts.<br />
-            <span className="text-emerald-600">Start winning them smarter.</span>
-          </h1>
-
-          <p className="text-2xl text-zinc-600 max-w-3xl mx-auto mb-12 leading-relaxed">
-            BidWon scans SAM.gov daily using <span className="font-semibold">your exact NAICS codes and set-asides</span>, scores opportunities instantly, and helps you prepare compliant bids — all while you stay in full control.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href="/login"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xl font-semibold px-12 py-6 rounded-3xl transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-200"
-            >
-              Get Started Free
-              <ArrowRight className="w-6 h-6" />
-            </Link>
-          </div>
-          <p className="text-sm text-zinc-500 mt-6">No credit card • Setup in under 60 seconds</p>
+        {/* Lead Magnet / Interactive Demo Entry */}
+        <div className="bg-slate-800/80 p-3 rounded-xl shadow-2xl border border-slate-700 max-w-3xl mx-auto flex flex-col md:flex-row gap-3 backdrop-blur-md">
+          <input 
+            type="text" 
+            placeholder="Enter your primary NAICS code (e.g., 541512)" 
+            className="flex-1 px-6 py-4 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-lg"
+          />
+          <Link href="#pricing" className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-10 rounded-lg transition-all flex items-center justify-center gap-2 text-lg shadow-lg">
+            Audit My NAICS <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </header>
 
-      {/* Interactive Demo - "See It Work" */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
+      {/* Interactive Demo & Scoring Framework Visual */}
+      <section className="py-24 px-6 bg-slate-900 border-y border-slate-800 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold tracking-tight mb-4">See BidWon in Action</h2>
-            <p className="text-2xl text-zinc-600 max-w-2xl mx-auto">Select your NAICS codes and watch how we find, score, and prepare real opportunities — live demo.</p>
+            <h2 className="text-4xl font-bold text-white mb-4">The Scoring Framework in Action</h2>
+            <p className="text-slate-400 text-lg">Real-time eligibility processing against live federal data.</p>
           </div>
-
-          {/* NAICS Selector */}
-          <div className="max-w-3xl mx-auto bg-zinc-50 border border-zinc-100 rounded-3xl p-10 mb-16">
-            <p className="text-zinc-700 font-medium mb-6 text-center">Select up to 5 NAICS codes (click to choose):</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto p-2">
-              {popularNaics.map((item) => (
-                <button
-                  key={item.code}
-                  onClick={() => toggleNaics(item.code)}
-                  className={`p-5 rounded-2xl text-left transition-all flex justify-between items-center border ${selectedNaics.includes(item.code) 
-                    ? 'border-emerald-600 bg-emerald-50 shadow-sm' 
-                    : 'border-zinc-200 hover:border-zinc-300 hover:bg-white'}`}
-                >
-                  <div>
-                    <span className="font-mono font-semibold text-emerald-700">{item.code}</span>
-                    <span className="ml-3 text-zinc-600 text-sm">{item.desc}</span>
-                  </div>
-                  {selectedNaics.includes(item.code) && <CheckCircle2 className="w-6 h-6 text-emerald-600" />}
-                </button>
-              ))}
+          
+          <div className="bg-[#0B0F19] rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+            <div className="flex border-b border-slate-800 bg-slate-900/50 p-4 items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <div className="ml-4 text-xs font-mono text-slate-500">bidwon-terminal // Llama-3-70b-active</div>
             </div>
-
-            <button
-              onClick={runDemo}
-              disabled={isDemoRunning || selectedNaics.length === 0}
-              className="mt-10 w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-5 rounded-3xl text-xl flex items-center justify-center gap-3 transition-all"
-            >
-              {isDemoRunning ? "Searching SAM.gov live..." : "Show Me Matching Opportunities"}
-              <Play className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* Demo Results */}
-          {demoResults && (
-            <div className="max-w-4xl mx-auto space-y-12">
-              {demoResults.opportunities.map((opp: any, index: number) => (
-                <div key={index} className="bg-white border border-zinc-100 shadow-sm rounded-3xl p-10 relative overflow-hidden">
-                  {showBlur && index >= 1 && (
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/95 to-white/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
-                      <p className="text-2xl font-semibold mb-4 text-center">This is just the preview.</p>
-                      <p className="text-zinc-600 max-w-md text-center mb-8">Sign up free to unlock full AI bid assistance, PDF form help, and daily real-time results.</p>
-                      <Link href="/login" className="bg-emerald-600 text-white px-10 py-4 rounded-3xl font-semibold flex items-center gap-3">
-                        Unlock Full Power Free <ArrowRight className="w-5 h-5" />
-                      </Link>
-                    </div>
-                  )}
-
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-semibold leading-tight mb-3">{opp.title}</h3>
-                      <p className="text-zinc-500 mb-6">{opp.agency} • Deadline: {opp.deadline}</p>
-                      <div className="bg-emerald-50 rounded-2xl p-6">
-                        <p className="font-medium text-emerald-800 mb-2">AI Summary</p>
-                        <p className="text-zinc-700">{opp.summary}</p>
-                      </div>
-                    </div>
-
-                    <div className="text-center md:text-right md:w-48 flex-shrink-0">
-                      <div className="text-[4.5rem] font-bold leading-none text-emerald-600">{opp.score}</div>
-                      <div className="uppercase tracking-[2px] text-xs font-medium text-emerald-600">MATCH SCORE</div>
-                    </div>
+            <div className="p-8 grid md:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-slate-400">Solicitation 47QTCA24Q0012</span>
+                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded font-bold">MATCH</span>
                   </div>
-
-                  <div className="mt-8 flex flex-wrap gap-6 text-sm">
-                    <div className="flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-emerald-600" /> {opp.checklist}</div>
-                    <div className="flex items-center gap-2"><FileText className="w-5 h-5 text-emerald-600" /> Full Bid Package Assist Ready</div>
+                  <h4 className="text-lg font-bold text-white mb-2">Cloud Infrastructure Services</h4>
+                  <div className="w-full bg-slate-900 rounded-full h-2 mb-2">
+                    <div className="bg-blue-500 h-2 rounded-full w-[92%]"></div>
                   </div>
+                  <p className="text-xs text-slate-400">Eligibility Score: 92% | NAICS: 541512</p>
                 </div>
-              ))}
-
-              <div className="text-center">
-                <Link href="/login" className="inline-flex items-center gap-3 bg-zinc-900 hover:bg-black text-white text-xl font-semibold px-16 py-7 rounded-3xl transition-all">
-                  Get Real Daily Opportunities + Full AI Assist
-                  <ArrowRight className="w-6 h-6" />
-                </Link>
+                <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700 opacity-50">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-slate-400">Solicitation W9128F24R0045</span>
+                    <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded font-bold">RISK</span>
+                  </div>
+                  <h4 className="text-lg font-bold text-white mb-2">Facility Logistics Management</h4>
+                  <p className="text-xs text-red-400">Flagged: Past performance requirement not met.</p>
+                </div>
+              </div>
+              <div className="bg-slate-900 rounded-lg p-6 border border-slate-800 font-mono text-sm text-slate-300 relative">
+                <div className="text-blue-400 mb-4">{`> INITIATING RAG VECTOR SEARCH...`}</div>
+                <div className="text-green-400 mb-2">{`[SUCCESS] 3 Historical Wins Found.`}</div>
+                <div className="text-slate-500 mb-4">{`> Compiling System Prompt via Llama 3-70B...`}</div>
+                <div>{`## Executive Summary`}</div>
+                <div className="text-slate-400 mt-2">In response to solicitation 47QTCA24Q0012, we propose a scalable, local-first architecture ensuring absolute data sovereignty...</div>
+                <div className="absolute bottom-6 right-6">
+                  <Lock className="w-5 h-5 text-slate-600" />
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </section>
 
-      {/* Problem Section */}
-      <section className="py-24 px-6 bg-zinc-900 text-white">
-        <div className="max-w-3xl mx-auto text-center">
-          <Clock className="w-20 h-20 text-red-400 mx-auto mb-8" />
-          <h2 className="text-5xl font-bold tracking-tight mb-8">Manual SAM.gov searching is costing you contracts</h2>
-          <p className="text-2xl text-zinc-400 leading-relaxed">
-            Spending 40+ hours per opportunity on searching, eligibility checks, and compliance while deadlines slip away — that ends now.
-          </p>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section className="py-24 px-6 max-w-6xl mx-auto">
+      {/* Pricing - Annual Upfront Focus */}
+      <section id="pricing" className="py-24 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-5xl font-bold tracking-tight mb-4">Choose Your Plan</h2>
-          <p className="text-xl text-zinc-600">Cancel anytime. Annual plans save 20%.</p>
+          <h2 className="text-4xl font-bold text-white mb-4">Deploy the Infrastructure.</h2>
+          <p className="text-lg text-slate-400">Zero budget growth hacking ends here. Build a real pipeline.</p>
         </div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Tactical */}
-          <div className="bg-white rounded-3xl p-10 border border-zinc-100">
-            <h3 className="text-3xl font-semibold mb-2">Tactical</h3>
-            <p className="text-zinc-500 mb-8">Perfect for getting started</p>
-            <div className="mb-12">
-              <span className="text-7xl font-bold">$79</span>
-              <span className="text-2xl text-zinc-500">/mo</span>
+        
+        <div className="grid md:grid-cols-3 gap-8 items-start">
+          {/* Tactical Tier */}
+          <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800">
+            <h3 className="text-xl font-bold text-white mb-4">Tactical</h3>
+            <div className="mb-6">
+              <span className="text-4xl font-black text-white">$1,490</span>
+              <span className="text-slate-500 ml-2">/year</span>
+              <p className="text-blue-400 text-sm font-bold mt-2">Save $298 vs monthly</p>
             </div>
-            <ul className="space-y-6 mb-12 text-lg">
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-600 mt-0.5" /> Daily filtered opportunities</li>
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-600 mt-0.5" /> Up to 5 NAICS & set-asides</li>
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-600 mt-0.5" /> AI scoring & basic assist</li>
+            <ul className="text-slate-400 space-y-3 mb-8 text-sm">
+              <li>• 5 Target NAICS Codes</li>
+              <li>• 5 Llama-3-70B Bids / mo</li>
+              <li>• Daily SAM.gov Email Alerts</li>
             </ul>
-            <Link href="/login" className="block w-full py-5 text-center border border-zinc-900 rounded-3xl font-semibold hover:bg-zinc-900 hover:text-white transition">Get Tactical</Link>
+            <Link href={process.env.NEXT_PUBLIC_STRIPE_TACTICAL_ANNUAL || "#"} className="block w-full text-center py-3 rounded-lg bg-slate-800 hover:bg-slate-700 font-bold border border-slate-700 text-white transition-colors">
+              Get Tactical
+            </Link>
           </div>
 
-          {/* Strategic - Popular */}
-          <div className="bg-zinc-900 text-white rounded-3xl p-10 relative scale-105 shadow-2xl border border-emerald-500/30">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-600 px-8 py-1 rounded-full text-sm font-bold">MOST POPULAR</div>
-            <h3 className="text-3xl font-semibold mb-2">Strategic</h3>
-            <p className="text-zinc-400 mb-8">For serious growth</p>
-            <div className="mb-12">
-              <span className="text-7xl font-bold">$297</span>
-              <span className="text-2xl text-zinc-400">/mo</span>
+          {/* Strategic Tier */}
+          <div className="bg-blue-600 p-8 rounded-2xl border border-blue-500 transform md:-translate-y-4 shadow-2xl relative">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-blue-600 text-xs font-black uppercase px-4 py-1 rounded-full shadow-md">
+              Best for Growth
             </div>
-            <ul className="space-y-6 mb-12 text-lg">
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-400 mt-0.5" /> Unlimited NAICS & set-asides</li>
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-400 mt-0.5" /> Unlimited AI scoring & summaries</li>
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-400 mt-0.5" /> Full bid package assistance</li>
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-400 mt-0.5" /> Advanced PDF & attachment tools</li>
+            <h3 className="text-xl font-bold text-white mb-4 mt-2">Strategic</h3>
+            <div className="mb-6">
+              <span className="text-4xl font-black text-white">$4,970</span>
+              <span className="text-blue-100 ml-2">/year</span>
+              <p className="text-white text-sm font-bold mt-2">Save $994 vs monthly</p>
+            </div>
+            <ul className="text-white space-y-3 mb-8 text-sm">
+              <li>• 20 Target NAICS Codes</li>
+              <li>• 50 Llama-3-70B Bids / mo</li>
+              <li>• Historical Vector Vault Access</li>
+              <li>• Priority Support</li>
             </ul>
-            <Link href="/login" className="block w-full py-5 text-center bg-emerald-600 rounded-3xl font-semibold hover:bg-emerald-700 transition">Get Strategic</Link>
+            <Link href={process.env.NEXT_PUBLIC_STRIPE_STRATEGIC_ANNUAL || "#"} className="block w-full text-center py-4 rounded-lg bg-white text-blue-600 font-black shadow-lg hover:bg-slate-100 transition-colors">
+              Start Strategic
+            </Link>
           </div>
 
-          {/* Sovereign */}
-          <div className="bg-white rounded-3xl p-10 border border-zinc-100">
-            <h3 className="text-3xl font-semibold mb-2">Sovereign</h3>
-            <p className="text-zinc-500 mb-8">Full control & scale</p>
-            <div className="mb-12">
-              <span className="text-7xl font-bold">$997</span>
-              <span className="text-2xl text-zinc-500">/mo</span>
+          {/* Sovereign Tier */}
+          <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800">
+            <h3 className="text-xl font-bold text-white mb-4">Sovereign</h3>
+            <div className="mb-6">
+              <span className="text-4xl font-black text-white">$24,970</span>
+              <span className="text-slate-500 ml-2">/year</span>
+              <p className="text-blue-400 text-sm font-bold mt-2">Save $4,994 vs monthly</p>
             </div>
-            <ul className="space-y-6 mb-12 text-lg">
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-600 mt-0.5" /> Everything in Strategic</li>
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-600 mt-0.5" /> Self-hosted / white-label</li>
-              <li className="flex gap-4"><CheckCircle2 className="w-6 h-6 text-emerald-600 mt-0.5" /> Priority support & integrations</li>
+            <ul className="text-slate-400 space-y-3 mb-8 text-sm">
+              <li>• Unlimited Bid Packages</li>
+              <li>• Agency Dashboard (10 Seats)</li>
+              <li>• White-Label Reporting</li>
+              <li>• API & Local-First Deployment</li>
             </ul>
-            <Link href="/login" className="block w-full py-5 text-center border border-zinc-900 rounded-3xl font-semibold hover:bg-zinc-900 hover:text-white transition">Contact Sales</Link>
+            <Link href={process.env.NEXT_PUBLIC_STRIPE_SOVEREIGN_ANNUAL || "#"} className="block w-full text-center py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors">
+              Contact Sales
+            </Link>
           </div>
         </div>
+        
+        <p className="text-center text-slate-500 text-sm mt-12">
+          All plans include 100% human-in-the-loop compliance. You maintain complete control to review and submit bids manually.
+        </p>
       </section>
 
       {/* Footer */}
-      <footer className="bg-zinc-900 text-zinc-400 py-16 px-6 text-center">
-        <p>© 2026 BidWon. All rights reserved. Helping small & certified contractors win more federal opportunities — compliantly and efficiently.</p>
+      <footer className="border-t border-slate-800 py-12 text-center text-slate-500">
+        <p>© 2026 BidWon. Sovereign AI Infrastructure.</p>
       </footer>
     </div>
   );
