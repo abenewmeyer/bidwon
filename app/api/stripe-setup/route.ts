@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-// Initialize Stripe with your Vercel Environment Variable
+// This line forces Vercel to skip static generation and makes the build pass
+export const dynamic = 'force-dynamic';
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2023-10-16',
 });
@@ -34,11 +36,18 @@ const products = [
 ];
 
 export async function GET() {
+  // Guard clause to check if the key exists before running
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json({ 
+      success: false, 
+      error: "STRIPE_SECRET_KEY is missing in Vercel Environment Variables." 
+    }, { status: 500 });
+  }
+
   try {
     const results = [];
 
     for (const prod of products) {
-      // 1. Create the Product in Stripe
       const product = await stripe.products.create({
         name: prod.name,
         description: prod.description,
@@ -46,7 +55,6 @@ export async function GET() {
 
       const priceResults = [];
       
-      // 2. Create the associated Prices (Monthly/Yearly)
       for (const p of prod.prices) {
         const price = await stripe.prices.create({
           product: product.id,
@@ -68,7 +76,6 @@ export async function GET() {
       });
     }
 
-    // 3. Output the generated IDs directly to your browser screen
     return NextResponse.json({ 
       success: true, 
       message: "Stripe products created successfully.",
@@ -76,7 +83,6 @@ export async function GET() {
     });
 
   } catch (error: any) {
-    // Catch any Stripe auth or network errors
     return NextResponse.json({ 
       success: false, 
       error: error.message 
