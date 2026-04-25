@@ -5,7 +5,7 @@ import Stripe from 'stripe';
 export const dynamic = 'force-dynamic';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2024-04-10',
 });
 
 const products = [
@@ -36,7 +36,6 @@ const products = [
 ];
 
 export async function GET() {
-  // Guard clause to check if the key exists before running
   if (!process.env.STRIPE_SECRET_KEY) {
     return NextResponse.json({ 
       success: false, 
