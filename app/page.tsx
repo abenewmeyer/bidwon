@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Clock, Zap, ShieldCheck, FileText, Play } from 'lucide-react';
+import { Zap, ChevronRight, CheckCircle2, Play } from 'lucide-react';
 
 export default function LandingPage() {
   const [isAnnual, setIsAnnual] = useState(true);
@@ -66,7 +66,12 @@ export default function LandingPage() {
       description: 'Daily SAM.gov sync (5 NAICS), 15 Scored Opps, 5 AI Bids/mo.',
       monthlyHref: process.env.NEXT_PUBLIC_STRIPE_TACTICAL_MONTHLY_URL || '#',
       annualHref: process.env.NEXT_PUBLIC_STRIPE_TACTICAL_ANNUAL_URL || '#',
-      features: ['Daily SAM.gov sync', 'Up to 5 NAICS codes', '15 Scored Opportunities', '5 AI-Drafted Bids/month'],
+      features: [
+        'Daily SAM.gov sync',
+        'Up to 5 NAICS codes',
+        '15 Scored Opportunities per month',
+        '5 AI-Drafted Bids per month'
+      ],
       popular: false,
     },
     {
@@ -76,7 +81,13 @@ export default function LandingPage() {
       description: '25 NAICS codes, 100 Scored Opps, 25 AI Bids/mo + Vector Vault.',
       monthlyHref: process.env.NEXT_PUBLIC_STRIPE_STRATEGIC_MONTHLY_URL || '#',
       annualHref: process.env.NEXT_PUBLIC_STRIPE_STRATEGIC_ANNUAL_URL || '#',
-      features: ['Advanced SAM.gov sync', 'Up to 25 NAICS codes', '100 Scored Opportunities', '25 AI-Drafted Bids/month', 'Private Vector Vault'],
+      features: [
+        'Advanced SAM.gov sync',
+        'Up to 25 NAICS codes',
+        '100 Scored Opportunities per month',
+        '25 AI-Drafted Bids per month',
+        'Private Vector Vault'
+      ],
       popular: true,
     },
     {
@@ -86,7 +97,12 @@ export default function LandingPage() {
       description: 'Unlimited Bids, Agency Dashboard, Priority AI Model Processing.',
       monthlyHref: process.env.NEXT_PUBLIC_STRIPE_SOVEREIGN_MONTHLY_URL || '#',
       annualHref: process.env.NEXT_PUBLIC_STRIPE_SOVEREIGN_ANNUAL_URL || '#',
-      features: ['Unlimited AI-Drafted Bids', 'Agency Dashboard (10 Sub-users)', 'Full API Access', 'Priority AI Model Processing'],
+      features: [
+        'Unlimited AI-Drafted Bids',
+        'Agency Dashboard (10 Sub-users)',
+        'Full API Access',
+        'Priority AI Model Processing'
+      ],
       popular: false,
     }
   ];
@@ -113,12 +129,12 @@ export default function LandingPage() {
             </div>
 
             <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-7xl mb-8 leading-tight">
-              Stop Missing Federal Contracts.<br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Start Winning Them.</span>
+              Stop Guessing.<br className="hidden sm:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Start Winning Govt Contracts.</span>
             </h1>
 
             <p className="mt-6 text-lg leading-8 text-slate-400 max-w-2xl mx-auto">
-              BidWon finds eligible opportunities on SAM.gov using your exact NAICS codes and set-asides, scores them for fit, and helps you prepare compliant bid packages. You always review and submit yourself.
+              BidWon connects directly to SAM.gov, scores active opportunities against your core competencies, and helps you prepare compliant bids using advanced AI. You always review and submit yourself.
             </p>
 
             <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -126,7 +142,7 @@ export default function LandingPage() {
                 View Pricing
               </a>
               <a href="#demo" className="text-base font-semibold leading-6 text-white group flex items-center">
-                See Live Demo <ChevronRight className="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                View Live Demo <ChevronRight className="ml-1 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
           </div>
@@ -211,7 +227,7 @@ export default function LandingPage() {
       </div>
 
       {/* Pricing */}
-      <div id="pricing" className="py-24 px-6 bg-slate-900/50 border-t border-slate-800">
+      <div id="pricing" className="py-24 sm:py-32 bg-slate-900/50 border-t border-slate-800">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-base font-semibold leading-7 text-emerald-400">Straight Line Acquisition</h2>
