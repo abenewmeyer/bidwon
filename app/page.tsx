@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Zap, ChevronRight } from 'lucide-react';
+import { Zap, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export default function LandingPage() {
   const [isAnnual, setIsAnnual] = useState(true);
@@ -74,13 +74,16 @@ export default function LandingPage() {
               <span className="flex h-2 w-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
               SAM.gov Sync is Live
             </div>
+
             <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-7xl mb-8 leading-tight">
-              Stop Guessing. <br className="hidden sm:block" />
+              Stop Guessing.<br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Start Winning Govt Contracts.</span>
             </h1>
+
             <p className="mt-6 text-lg leading-8 text-slate-400 max-w-2xl mx-auto">
-              BidWon connects directly to SAM.gov, scores active opportunities against your core competencies, and helps draft compliant bids using advanced AI.
+              BidWon connects directly to SAM.gov, scores active opportunities against your core competencies, and helps you prepare compliant bids using advanced AI. You review and submit yourself.
             </p>
+
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <a href="#pricing" className="rounded-md bg-emerald-500 px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-emerald-600 transition-all">
                 View Pricing
