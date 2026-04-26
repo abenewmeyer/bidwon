@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const dynamic = 'force-dynamic';
 
@@ -8,28 +9,52 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY as string
 );
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const query = searchParams.get('q');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
-  if (!query) {
-    return NextResponse.json([]);
-  }
-
+export async function POST(req: Request) {
   try {
-    // Search your live SAM.gov sync table for real opportunities
-    const { data, error } = await supabase
+    const { url } = await req.json();
+
+    if (!url) return NextResponse.json({ error: "No URL provided" }, { status: 400 });
+
+    // 1. Scrape the visitor's website using Firecrawl
+    const scrapeRes = await fetch('https://api.firecrawl.dev/v0/scrape', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.FIRECRAWL_API_KEY}`
+      },
+      body: JSON.stringify({ url, pageOptions: { onlyMainContent: true } })
+    });
+    
+    const scrapeData = await scrapeRes.json();
+    const websiteContent = scrapeData.data?.content || "";
+
+    // 2. Use Gemini to extract NAICS codes and Keywords from the website
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `Analyze this company website content and return the top 3 NAICS codes (6 digits) and 3 primary industry keywords that describe their core business. Return as JSON only: { "naics": [], "keywords": [] }. Content: ${websiteContent.substring(0, 5000)}`;
+    
+    const aiRes = await model.generateContent(prompt);
+    const aiText = aiRes.response.text().replace(/```json|```/g, "").trim();
+    const { naics, keywords } = JSON.parse(aiText);
+
+    // 3. Search Supabase for REAL opportunities matching these keywords/codes
+    const { data: matches, error } = await supabase
       .from('sam_opportunities')
-      .select('opportunity_id, title, agency, naics_code, posted_date, sol_number')
-      .or(`title.ilike.%${query}%,agency.ilike.%${query}%`)
+      .select('opportunity_id, title, agency, naics_code, posted_date')
+      .or(`title.ilike.%${keywords[0]}%,naics_code.in.(${naics.join(',')})`)
       .limit(5)
       .order('posted_date', { ascending: false });
 
     if (error) throw error;
 
-    return NextResponse.json(data || []);
+    return NextResponse.json({
+      capabilities: keywords,
+      matches: matches || []
+    });
+
   } catch (error: any) {
-    console.error('Search Error:', error);
+    console.error('Demo Engine Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
