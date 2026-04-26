@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const { data: matches, error } = await supabase
       .from('sam_opportunities')
       .select('opportunity_id, title, agency, naics_code')
-      .or(	itle.ilike.%${query}%,naics_code.ilike.%${query}%)
+      .or('title.ilike.%' + query + '%,naics_code.ilike.%' + query + '%')
       .limit(5);
 
     if (error) throw error;
