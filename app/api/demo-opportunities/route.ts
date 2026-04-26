@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
@@ -16,11 +16,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "NAICS code or keyword required" }, { status: 400 });
     }
 
-    // Direct, fast query against your local synchronized SAM data
     const { data: matches, error } = await supabase
       .from('sam_opportunities')
       .select('opportunity_id, title, agency, naics_code')
-      .or(`title.ilike.%${query}%,naics_code.ilike.%${query}%`)
+      .or(	itle.ilike.%${query}%,naics_code.ilike.%${query}%)
       .limit(5);
 
     if (error) throw error;
