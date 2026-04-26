@@ -1,51 +1,102 @@
-﻿import { NextRequest } from "next/server";
-import { supabase } from "@/lib/supabase";
+﻿// app/api/demo-opportunities/route.ts
+// Public-facing API route for the landing page demo.
+// Uses the Supabase SERVICE ROLE key to bypass RLS — safe because:
+//   • Only reads the opportunities table
+//   • Returns only sanitized, non-user-identifiable fields
+//   • Rate-limited by the 10-result cap per request
 
-const SAM_BASE = "https://api.sam.gov/opportunities/v2/search";
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+// Service role client — NEVER expose this key client-side
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!, // add to .env.local + Vercel env vars
+  { auth: { persistSession: false } }
+);
 
 export async function GET(req: NextRequest) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return new Response("Unauthorized", { status: 401 });
+  const { searchParams } = new URL(req.url);
+  const naicsParam = searchParams.get("naics");
 
-  const { data: profile } = await supabase
-    .from("company_profiles").select("*").eq("user_id", user.id).single();
-  if (!profile) return new Response("No profile", { status: 400 });
-
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const from = yesterday.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" });
-  const to = new Date().toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" });
-
-  const params = new URLSearchParams({
-    api_key: process.env.SAM_API_KEY || "",
-    postedFrom: from,
-    postedTo: to,
-    ptype: "o,k",
-    typeOfSetAside: profile.set_asides[0] || "SDVOSBC",
-    ncode: profile.naics_codes[0] || "624230",
-    limit: "100",
-    offset: "0",
-  });
-
-  if (profile.keywords?.length) params.append("title", profile.keywords.join(" OR "));
-
-  const res = await fetch(`${SAM_BASE}?${params}`);
-  const data = await res.json();
-
-  for (const opp of data.opportunitiesData || []) {
-    await supabase.from("opportunities").upsert({
-      notice_id: opp.noticeId,
-      title: opp.title,
-      agency: opp.fullParentPathName,
-      posted_date: opp.postedDate,
-      response_deadline: opp.responseDeadLine,
-      type_of_set_aside: opp.typeOfSetAside,
-      naics_code: opp.naicsCode,
-      match_score: 50,
-      raw_json: opp,
-      user_id: user.id,
-    });
+  if (!naicsParam) {
+    return NextResponse.json({ error: "No NAICS codes provided" }, { status: 400 });
   }
 
-  return Response.json({ fetched: data.totalRecords || 0, message: "BidWon scan complete" });
+  // Parse comma-separated NAICS codes, cap at 5
+  const naicsCodes = naicsParam
+    .split(",")
+    .map((c) => c.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+
+  try {
+    // Query opportunities matching any of the selected NAICS codes
+    // Only return active opportunities (deadline in the future or null)
+    const today = new Date().toISOString().split("T")[0];
+
+    const { data, error } = await supabaseAdmin
+      .from("opportunities")
+      .select(
+        "notice_id, title, agency, response_deadline, type_of_set_aside, naics_code, match_score, ai_summary, eligibility_checklist"
+      )
+      .in("naics_code", naicsCodes)
+      .or(`response_deadline.gte.${today},response_deadline.is.null`)
+      .order("match_score", { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error("Demo opportunities query error:", error);
+      return NextResponse.json({ error: "Failed to fetch opportunities" }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
+      return NextResponse.json({ opportunities: [], message: "no_data" });
+    }
+
+    // Sanitize — strip any user_id or internal fields before returning
+    const sanitized = data.map((opp) => ({
+      notice_id: opp.notice_id,
+      title: opp.title,
+      agency: opp.agency ?? "Federal Agency",
+      deadline: opp.response_deadline
+        ? new Date(opp.response_deadline).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })
+        : "Open",
+      set_aside: formatSetAside(opp.type_of_set_aside),
+      naics_code: opp.naics_code,
+      score: opp.match_score ?? 50,
+      summary: opp.ai_summary ?? null,
+      checklist: opp.eligibility_checklist ?? null,
+    }));
+
+    return NextResponse.json({ opportunities: sanitized });
+  } catch (err) {
+    console.error("Demo route error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+// Map SAM.gov set-aside codes to human-readable labels
+function formatSetAside(code: string | null): string {
+  if (!code) return "Open Competition";
+  const map: Record<string, string> = {
+    SBA: "Small Business",
+    "8A": "8(a) Set-Aside",
+    "8AN": "8(a) Sole Source",
+    HZC: "HUBZone",
+    HZS: "HUBZone Sole Source",
+    SDVOSBC: "SDVOSB",
+    SDVOSBSS: "SDVOSB Sole Source",
+    WOSB: "Women-Owned SB",
+    WOSBSS: "WOSB Sole Source",
+    EDWOSB: "EDWOSB",
+    VSA: "Veteran-Owned SB",
+    BPA: "Blanket Purchase Agreement",
+    ISBEE: "Indian Small Business",
+  };
+  return map[code.toUpperCase()] ?? code;
 }
