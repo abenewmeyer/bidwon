@@ -1,7 +1,7 @@
-﻿import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+﻿import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
@@ -10,16 +10,26 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { query } = await req.json();
+    const { queries } = await req.json();
     
-    if (!query) {
-      return NextResponse.json({ error: "NAICS code or keyword required" }, { status: 400 });
+    // Filter out empty boxes
+    const activeQueries = queries.filter((q: string) => q.trim() !== "");
+
+    if (activeQueries.length === 0) {
+      return NextResponse.json({ error: "At least one NAICS code or keyword is required." }, { status: 400 });
     }
 
+    // Build dynamic OR string for Supabase based on populated boxes
+    let orStringArray = [];
+    for (const q of activeQueries) {
+      orStringArray.push(`title.ilike.%${q}%,naics_code.ilike.%${q}%`);
+    }
+    const orQuery = orStringArray.join(",");
+
     const { data: matches, error } = await supabase
-      .from('sam_opportunities')
-      .select('opportunity_id, title, agency, naics_code')
-      .or('title.ilike.%' + query + '%,naics_code.ilike.%' + query + '%')
+      .from("sam_opportunities")
+      .select("opportunity_id, title, agency, naics_code")
+      .or(orQuery)
       .limit(5);
 
     if (error) throw error;
@@ -27,7 +37,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ matches: matches || [] });
 
   } catch (error: any) {
-    console.error('Database Query Error:', error);
+    console.error("Database Query Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
