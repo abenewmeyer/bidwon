@@ -1,133 +1,285 @@
 ﻿"use client";
 
-import { useState } from 'react';
-import { Zap, ChevronRight } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from "react";
+import Link from "next/link";
+import { Zap, ChevronRight, CheckCircle2 } from "lucide-react";
 
 export default function LandingPage() {
   const [isAnnual, setIsAnnual] = useState(true);
 
   const tiers = [
     {
-      name: 'Tactical',
-      monthlyPrice: '$149',
-      annualPrice: '$1,490',
-      description: 'Daily SAM.gov sync (5 NAICS), 15 Scored Opps, 5 AI Bids/mo.',
-      features: ['Daily SAM.gov sync', 'Up to 5 NAICS codes', '15 Scored Opportunities', '5 AI-Drafted Bids/month'],
+      name: "Tactical",
+      monthlyPrice: "$149",
+      annualPrice: "$1,490",
+      description: "Consistently identify and act on qualified opportunities.",
+      features: [
+        "Daily matched opportunities from SAM.gov",
+        "Up to 5 NAICS codes tracked",
+        "15 high-fit opportunities scored monthly",
+        "Up to 5 fully compliant AI-drafted bids/month",
+      ],
       popular: false,
     },
     {
-      name: 'Strategic',
-      monthlyPrice: '$497',
-      annualPrice: '$4,970',
-      description: '25 NAICS codes, 100 Scored Opps, 25 AI Bids/mo + Vector Vault.',
-      features: ['Advanced SAM.gov sync', 'Up to 25 NAICS codes', '100 Scored Opportunities', '25 AI-Drafted Bids/month', 'Private Vector Vault'],
+      name: "Strategic",
+      monthlyPrice: "$497",
+      annualPrice: "$4,970",
+      description: "Scale bid volume and increase win probability.",
+      features: [
+        "Advanced opportunity matching across 25 NAICS codes",
+        "100 scored, high-probability opportunities monthly",
+        "Up to 25 fully compliant AI-drafted bids/month",
+        "Private knowledge vault trained on your past wins",
+      ],
       popular: true,
     },
     {
-      name: 'Sovereign',
-      monthlyPrice: '$2,497',
-      annualPrice: '$24,970',
-      description: 'Unlimited Bids, Agency Dashboard, Priority AI Model Processing.',
-      features: ['Unlimited AI-Drafted Bids', 'Agency Dashboard (10 Sub-users)', 'Full API Access', 'Priority AI Model Processing'],
+      name: "Sovereign",
+      monthlyPrice: "$2,497",
+      annualPrice: "$24,970",
+      description: "Operate a fully automated, high-volume contract pipeline.",
+      features: [
+        "Unlimited AI-drafted compliant bids",
+        "Real-time agency opportunity dashboard",
+        "Multi-user team access (10 seats)",
+        "Priority processing with highest-speed AI models",
+      ],
       popular: false,
-    }
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-indigo-500/30">
-      <nav className="flex items-center justify-between p-6 lg:px-8 border-b border-slate-800/60 bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex lg:flex-1">
-          <span className="text-2xl font-bold tracking-tighter bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">BidWon.</span>
+    <div className="min-h-screen bg-slate-950 text-white font-sans">
+
+      {/* NAV */}
+      <nav className="flex items-center justify-between p-6 border-b border-slate-800">
+        <div className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+          BidWon
         </div>
-        <div className="flex flex-1 justify-end space-x-4">
-          <Link href="/dashboard" className="text-sm font-semibold leading-6 text-slate-300 hover:text-white transition-colors">
-            Client Login
-          </Link>
-        </div>
+        <Link href="/dashboard" className="text-sm text-slate-300 hover:text-white">
+          Client Login
+        </Link>
       </nav>
 
-      <div className="relative isolate px-6 pt-14 lg:px-8">
-        <div className="mx-auto max-w-4xl py-24 sm:py-32 lg:py-40">
-          <div className="text-center">
-            <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold text-indigo-400 ring-1 ring-inset ring-indigo-400/30 mb-8 bg-indigo-400/10">
-              <span className="flex h-2 w-2 rounded-full bg-indigo-400 mr-2 animate-pulse"></span>
-              SAM.gov Sync is Live
+      {/* HERO */}
+      <section className="px-6 py-24 max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+
+        {/* LEFT */}
+        <div>
+          <div className="inline-flex items-center px-3 py-1 text-sm text-indigo-300 bg-indigo-500/10 rounded-full mb-6">
+            Live SAM.gov Data • Updated Daily
+          </div>
+
+          <h1 className="text-5xl font-extrabold leading-tight mb-6">
+            Win More Government Contracts <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+              Without Manual Search or Proposal Writing
+            </span>
+          </h1>
+
+          <p className="text-lg text-slate-400 mb-8">
+            BidWon automatically finds, qualifies, and drafts compliant bids for active
+            SAM.gov opportunities based on your capabilities—so you can increase
+            submission volume and win rate without increasing workload.
+          </p>
+
+          {/* PRIMARY CTA */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link
+              href="/api/checkout?plan=Strategic&interval=year"
+              className="bg-indigo-500 hover:bg-indigo-400 px-6 py-3 rounded-md font-semibold text-center"
+            >
+              Start Winning Contracts
+            </Link>
+
+            <Link
+              href="#how"
+              className="flex items-center justify-center text-white"
+            >
+              See How It Works
+              <ChevronRight className="ml-1 w-4 h-4" />
+            </Link>
+          </div>
+
+          <p className="text-xs text-slate-500 mt-4">
+            Takes less than 2 minutes • No setup required • 14-day risk-free access
+          </p>
+        </div>
+
+        {/* RIGHT VISUAL */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <div className="text-sm text-slate-400 mb-4">
+            Example Matched Opportunity
+          </div>
+          <div className="space-y-3">
+            <div className="p-4 bg-slate-800 rounded-lg">
+              <div className="font-semibold">Federal IT Services Contract</div>
+              <div className="text-sm text-slate-400">Match Score: 92%</div>
             </div>
-            <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-7xl mb-8 leading-tight">
-              Stop Guessing. <br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Start Winning Govt Contracts.</span>
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-slate-400 max-w-2xl mx-auto">
-              BidWon connects directly to SAM.gov, vector-scores active opportunities against your core competencies, and drafts compliant bids using advanced AI architectures. 
+            <div className="p-4 bg-slate-800 rounded-lg">
+              <div className="font-semibold">Cybersecurity Support RFP</div>
+              <div className="text-sm text-slate-400">Match Score: 87%</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TRUST */}
+      <section className="px-6 py-16 border-t border-slate-800 text-center">
+        <p className="text-slate-400 mb-6">
+          Trusted by contractors scaling federal revenue pipelines
+        </p>
+
+        <div className="flex justify-center gap-10 text-slate-500 text-sm mb-10">
+          <span>IT Services</span>
+          <span>Defense</span>
+          <span>Healthcare</span>
+          <span>Logistics</span>
+        </div>
+
+        <div className="max-w-3xl mx-auto text-lg text-slate-300">
+          “BidWon replaced over 20 hours per week of manual opportunity search and
+          increased our bid submissions by more than 4x within the first month.”
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section id="how" className="px-6 py-24 max-w-6xl mx-auto text-center">
+        <h2 className="text-4xl font-bold mb-12">How It Works</h2>
+
+        <div className="grid md:grid-cols-3 gap-10 text-left">
+          <div>
+            <div className="text-indigo-400 font-semibold mb-2">1. Connect</div>
+            <p className="text-slate-400">
+              Input your NAICS codes and core capabilities in minutes.
             </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <a href="#pricing" className="rounded-md bg-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 transition-all">
-                View Pricing
-              </a>
-              <Link href="/dashboard" className="text-sm font-semibold leading-6 text-white group flex items-center">
-                View Live Demo <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
+          </div>
+
+          <div>
+            <div className="text-indigo-400 font-semibold mb-2">2. Analyze</div>
+            <p className="text-slate-400">
+              BidWon scans and scores live SAM.gov opportunities for best fit.
+            </p>
+          </div>
+
+          <div>
+            <div className="text-indigo-400 font-semibold mb-2">3. Execute</div>
+            <p className="text-slate-400">
+              Instantly generate compliant, submission-ready proposals.
+            </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div id="pricing" className="py-24 sm:py-32 bg-slate-900/50 border-t border-slate-800">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="text-base font-semibold leading-7 text-indigo-400">Straight Line Acquisition</h2>
-            <p className="mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl">Select your deployment tier</p>
+      {/* DIFFERENTIATION */}
+      <section className="px-6 py-24 bg-slate-900 border-t border-slate-800 text-center">
+        <h2 className="text-4xl font-bold mb-12">Why BidWon</h2>
+
+        <div className="grid md:grid-cols-3 gap-10 text-left max-w-5xl mx-auto">
+          <div>
+            <h3 className="font-semibold mb-2">Manual Search</h3>
+            <p className="text-slate-400">Time-consuming and inconsistent</p>
           </div>
 
-          <div className="mt-6 flex justify-center">
-            <div className="grid grid-cols-2 gap-x-1 rounded-full p-1 text-center text-xs font-semibold leading-5 ring-1 ring-inset ring-slate-800 bg-slate-900/50">
-              <button 
-                onClick={() => setIsAnnual(false)} 
-                className={`cursor-pointer rounded-full px-4 py-2 transition-colors ${!isAnnual ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
-                Monthly
-              </button>
-              <button 
-                onClick={() => setIsAnnual(true)} 
-                className={`cursor-pointer rounded-full px-4 py-2 transition-colors ${isAnnual ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-slate-200'}`}>
-                Annually
-              </button>
-            </div>
+          <div>
+            <h3 className="font-semibold mb-2">Generic AI Tools</h3>
+            <p className="text-slate-400">Lack compliance and targeting</p>
           </div>
 
-          <div className="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-            {tiers.map((tier) => (
-              <div key={tier.name} className={`rounded-3xl p-8 ring-1 transition-all ${tier.popular ? 'bg-slate-800/80 ring-indigo-500 shadow-2xl shadow-indigo-500/20 scale-105 z-10' : 'bg-slate-900/50 ring-slate-700 hover:ring-slate-500'}`}>
-                <h3 className="text-lg font-semibold leading-8 text-white flex justify-between items-center">
-                  {tier.name}
-                  {tier.popular && <span className="rounded-full bg-indigo-500/20 px-2.5 py-1 text-xs font-semibold leading-5 text-indigo-300 ring-1 ring-inset ring-indigo-500/50">Most Popular</span>}
-                </h3>
-                <p className="mt-4 text-sm leading-6 text-slate-400">{tier.description}</p>
-                <p className="mt-6 flex items-baseline gap-x-1">
-                  <span className="text-4xl font-bold tracking-tight text-white">{isAnnual ? tier.annualPrice : tier.monthlyPrice}</span>
-                  <span className="text-sm font-semibold leading-6 text-slate-400">{isAnnual ? '/year' : '/month'}</span>
-                </p>
-                
-                <Link 
-                  href={`/api/checkout?plan=${tier.name}&interval=${isAnnual ? 'year' : 'month'}`}
-                  className={`mt-6 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 transition-colors ${tier.popular ? 'bg-indigo-500 text-white hover:bg-indigo-400' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
-                >
-                  Secure Access
-                </Link>
+          <div>
+            <h3 className="font-semibold mb-2 text-indigo-400">BidWon</h3>
+            <p className="text-slate-400">
+              Fully automated, compliant, opportunity-to-bid system
+            </p>
+          </div>
+        </div>
+      </section>
 
-                <ul className="mt-8 space-y-3 text-sm leading-6 text-slate-300">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex gap-x-3">
-                      <Zap className="h-5 w-5 flex-none text-indigo-400" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+      {/* PRICING */}
+      <section id="pricing" className="px-6 py-24 max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold mb-4">Select Your Deployment Tier</h2>
+          <p className="text-slate-400">
+            One successful contract can cover years of BidWon.
+          </p>
+        </div>
+
+        <div className="flex justify-center mb-8">
+          <div className="flex bg-slate-900 rounded-full p-1">
+            <button
+              onClick={() => setIsAnnual(false)}
+              className={`px-4 py-2 rounded-full ${!isAnnual ? "bg-indigo-500" : ""}`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setIsAnnual(true)}
+              className={`px-4 py-2 rounded-full ${isAnnual ? "bg-indigo-500" : ""}`}
+            >
+              Annually
+            </button>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {tiers.map((tier) => (
+            <div
+              key={tier.name}
+              className={`p-8 rounded-2xl border ${
+                tier.popular
+                  ? "border-indigo-500 bg-slate-800 scale-105"
+                  : "border-slate-800 bg-slate-900"
+              }`}
+            >
+              <h3 className="text-xl font-semibold mb-4">{tier.name}</h3>
+
+              <p className="text-slate-400 mb-4">{tier.description}</p>
+
+              <div className="text-4xl font-bold mb-6">
+                {isAnnual ? tier.annualPrice : tier.monthlyPrice}
               </div>
-            ))}
-          </div>
+
+              <Link
+                href={`/api/checkout?plan=${tier.name}&interval=${
+                  isAnnual ? "year" : "month"
+                }`}
+                className="block bg-indigo-500 hover:bg-indigo-400 text-center py-3 rounded-md font-semibold"
+              >
+                Start Winning Contracts
+              </Link>
+
+              <ul className="mt-6 space-y-3 text-sm text-slate-300">
+                {tier.features.map((f) => (
+                  <li key={f} className="flex gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-      </div>
+
+        <p className="text-center text-sm text-slate-500 mt-8">
+          14-day risk-free access. Cancel anytime.
+        </p>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="px-6 py-24 text-center border-t border-slate-800">
+        <h2 className="text-4xl font-bold mb-6">
+          Start Winning More Contracts Today
+        </h2>
+
+        <Link
+          href="/api/checkout?plan=Strategic&interval=year"
+          className="bg-indigo-500 hover:bg-indigo-400 px-8 py-4 rounded-md font-semibold"
+        >
+          Get Matched Opportunities Now
+        </Link>
+      </section>
+
     </div>
   );
 }
