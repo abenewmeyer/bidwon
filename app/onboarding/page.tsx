@@ -2,11 +2,41 @@
 
 import { useState } from "react";
 import { ShieldCheck, UploadCloud, Globe, ArrowRight, Lock } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+// We import your existing, working Supabase client instead of recreating it
+import supabase from "../../lib/supabase"; 
 
 export default function OnboardingPage() {
   const [url, setUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
+
+  const handleProceed = async () => {
+    setIsSaving(true);
+    try {
+      // 1. Get the current logged-in user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError) throw authError;
+
+      if (user) {
+        // 2. Create the blank profile row so the dashboard sync stops failing
+        const { error: dbError } = await supabase.from("company_profiles").upsert({
+          id: user.id,
+          naics_codes: [], 
+          keywords: [],
+        });
+        
+        if (dbError) throw dbError;
+      }
+      
+      // 3. Move to the dashboard
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Setup failed:", error);
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans">
@@ -21,7 +51,7 @@ export default function OnboardingPage() {
         <div className="mb-10 text-center">
           <h1 className="text-3xl font-bold mb-4">Initialize Your Vector Vault</h1>
           <p className="text-slate-400">
-            Upload your Capability Statements and past performance data. <strong className="text-slate-200">Your data is Sovereign.</strong> It is strictly sandboxed to your account and utilized exclusively to tailor your bid submissions. It will never be used to train public models.
+            Upload your Capability Statements and past performance data. <strong className="text-slate-200">Your data is Sovereign.</strong> It is strictly sandboxed to your account and utilized exclusively to tailor your bid submissions.
           </p>
         </div>
 
@@ -50,9 +80,13 @@ export default function OnboardingPage() {
         </div>
 
         <div className="flex justify-end">
-          <Link href="/dashboard" className="bg-indigo-500 hover:bg-indigo-400 px-8 py-3 rounded-lg font-semibold flex items-center transition-colors">
-            Proceed to Command Center <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
+          <button 
+            onClick={handleProceed}
+            disabled={isSaving}
+            className="bg-indigo-500 hover:bg-indigo-400 px-8 py-3 rounded-lg font-semibold flex items-center transition-colors disabled:opacity-50"
+          >
+            {isSaving ? "Initializing Vault..." : "Proceed to Command Center"} <ArrowRight className="ml-2 h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>
