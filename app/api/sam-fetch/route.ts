@@ -138,8 +138,8 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (profileError || !profile) {
-    return new Response("No company profile found for this user", { status: 400 });
-  }
+  return NextResponse.json({ error: "No company profile found. Please complete onboarding first." }, { status: 400 });
+}
 
   const naicsCodes: string[] = profile.naics_codes ?? [];
   const setAsides: string[] = profile.set_asides ?? [];
