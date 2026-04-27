@@ -10,16 +10,17 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { queries } = await req.json();
+    const body = await req.json();
+    const queries = body.queries || [];
     
-    // Filter out empty boxes
+    // Filter out the empty boxes
     const activeQueries = queries.filter((q: string) => q.trim() !== "");
 
     if (activeQueries.length === 0) {
-      return NextResponse.json({ error: "At least one NAICS code or keyword is required." }, { status: 400 });
+      return NextResponse.json({ error: "At least one NAICS code is required." }, { status: 400 });
     }
 
-    // Build dynamic OR string for Supabase based on populated boxes
+    // Build the query to check all active boxes
     let orStringArray = [];
     for (const q of activeQueries) {
       orStringArray.push(`title.ilike.%${q}%,naics_code.ilike.%${q}%`);
