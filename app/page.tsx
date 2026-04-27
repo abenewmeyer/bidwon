@@ -83,7 +83,7 @@ export default function LandingPage() {
         <div className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
           BidWon
         </div>
-        <Link href="/dashboard" className="text-sm text-slate-300 hover:text-white">
+        <Link href="/login" className="text-sm text-slate-300 hover:text-white">
           Client Login
         </Link>
       </nav>
