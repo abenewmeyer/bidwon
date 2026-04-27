@@ -11,7 +11,6 @@ export default function OnboardingPage() {
   const [scraped, setScraped] = useState(false);
   const router = useRouter();
 
-  // Wires up the scrape button so it functions
   const handleScrape = () => {
     if (!url) {
       alert("Please enter a website URL first.");
@@ -24,7 +23,6 @@ export default function OnboardingPage() {
   const handleProceed = async () => {
     setIsSaving(true);
     try {
-      // 1. Verify you are actually logged in
       const { data: { user }, error: authError } = await supabase.auth.getUser();
 
       if (authError || !user) {
@@ -33,20 +31,17 @@ export default function OnboardingPage() {
         return;
       }
 
-      // 2. Save the profile and capture any database errors
       const { error: dbError } = await supabase.from("company_profiles").upsert({
         id: user.id,
-        // We inject robust NAICS codes so the SAM sync actually finds contracts
         naics_codes: ["541330", "541511", "541512", "541611"], 
       });
       
       if (dbError) {
-        alert("Database Error: " + dbError.message + "\n\n(If this says 'Row-Level Security', see my instructions below!)");
+        alert("Database Error: " + dbError.message);
         setIsSaving(false);
         return;
       }
       
-      // 3. Success! Move to Dashboard
       alert("Profile successfully generated! Taking you to the Command Center.");
       router.push("/dashboard");
     } catch (error) {
