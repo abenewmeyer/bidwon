@@ -6,119 +6,57 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Native CSV parser to avoid requiring external npm packages
-function parseCSV(text: string) {
-  const results: string[][] = [];
-  let currentField = '';
-  let currentRow: string[] = [];
-  let inQuotes = false;
-  
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    const nextChar = text[i + 1];
-    
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
-        currentField += '"';
-        i++; // Skip escaped quote
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      currentRow.push(currentField);
-      currentField = '';
-    } else if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (char === '\r' && nextChar === '\n') i++; // Handle \r\n
-      currentRow.push(currentField);
-      if (currentRow.some(field => field !== '')) results.push(currentRow);
-      currentRow = [];
-      currentField = '';
-    } else {
-      currentField += char;
-    }
-  }
-  
-  if (currentRow.length > 0 || currentField !== '') {
-    currentRow.push(currentField);
-    results.push(currentRow);
-  }
-  
-  if (results.length < 2) return [];
-  
-  const headers = results[0].map(h => h.trim());
-  return results.slice(1).map(row => {
-    const obj: Record<string, string> = {};
-    headers.forEach((h, index) => {
-      obj[h] = row[index] ? row[index].trim() : '';
-    });
-    return obj;
-  });
-}
-
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const samExtractUrl = 'https://sam.gov/api/prod/fileextractservices/v1/api/download/Active%20Opportunities';
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
   
+  const formatDate = (d: Date) => d.toISOString().split('T')[0];
+  
+  // Public search endpoint - NO API KEY required
+  const samPublicUrl = `https://api.sam.gov/opportunities/v2/search?limit=100&postedFrom=${formatDate(yesterday)}&postedTo=${formatDate(today)}&ptype=o,k`;
+
   try {
-    const response = await fetch(samExtractUrl, {
+    const response = await fetch(samPublicUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       }
     });
 
-    if (!response.ok) throw new Error(`Failed to fetch from SAM: ${response.statusText}`);
+    if (!response.ok) throw new Error(`SAM Public API failed: ${response.statusText}`);
 
-    const rawText = await response.text();
-    
-    if (!rawText || rawText.trim().length === 0) {
-      return NextResponse.json({ 
-        success: false, 
-        message: "SAM returned an empty body. Possible bot block.",
-        status: response.status
-      });
-    }
-
-    const records = parseCSV(rawText);
+    const data = await response.json();
+    const records = data.opportunitiesData || [];
 
     if (records.length === 0) {
-      return NextResponse.json({ 
-        success: false, 
-        message: "0 records parsed.", 
-        raw_preview: rawText.substring(0, 500) 
-      });
+      return NextResponse.json({ success: true, message: "No new opportunities found in last 24h via public API." });
     }
 
-    let upsertedCount = 0;
-    const batchSize = 100;
+    const formattedRecords = records.map((opp: any) => ({
+      notice_id: opp.noticeId,
+      title: opp.title,
+      department: opp.fullParentPathName || opp.organizationName,
+      naics_code: opp.naicsCode,
+      posted_date: opp.postedDate,
+      close_date: opp.responseDeadLine,
+      description: opp.description,
+      url: opp.uiLink
+    }));
 
-    for (let i = 0; i < records.length; i += batchSize) {
-      const batch = records.slice(i, i + batchSize).map((row) => ({
-        notice_id: row['NoticeId'],
-        title: row['Title'],
-        department: row['Department/Ind.Agency'],
-        naics_code: row['NaicsCode'],
-        posted_date: row['PostedDate'] ? new Date(row['PostedDate']).toISOString() : null,
-        close_date: row['ResponseDeadLine'] ? new Date(row['ResponseDeadLine']).toISOString() : null,
-        description: row['Description'],
-        url: row['LinkToUi']
-      }));
+    const { error } = await supabase
+      .from('sam_opportunities')
+      .upsert(formattedRecords, { onConflict: 'notice_id' });
 
-      const { error } = await supabase
-        .from('sam_opportunities')
-        .upsert(batch, { onConflict: 'notice_id', ignoreDuplicates: false });
-
-      if (!error) {
-        upsertedCount += batch.length;
-      }
-    }
+    if (error) throw error;
 
     return NextResponse.json({ 
       success: true, 
-      message: `SAM bulk data sync complete. Upserted ${upsertedCount} records.` 
+      message: `Sync complete. Upserted ${formattedRecords.length} records from public API.` 
     });
 
   } catch (error) {
