@@ -31,8 +31,8 @@ export default function OnboardingPage() {
         return;
       }
 
-      const { error: dbError } = await supabase.from("company_profiles").upsert({
-        id: user.id,
+      const { error: dbError } = await supabase.from("company_profiles").insert({
+        user_id: user.id, // <--- We changed "id" to "user_id" and "upsert" to "insert"
         naics_codes: ["541330", "541511", "541512", "541611"], 
       });
       
