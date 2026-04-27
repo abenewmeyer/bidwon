@@ -12,50 +12,88 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Use the public frontend data service (No API Key Required)
-  const samPublicUrl = "https://sam.gov/api/prod/samsse/v1/api/search?index=opportunities&page=0&size=100&sort=-modifiedDate&mode=search&is_active=true";
+  const url = 'https://sam.gov/api/prod/fileextractservices/v1/api/download/Active%20Opportunities';
 
   try {
-    const response = await fetch(samPublicUrl, {
+    const response = await fetch(url, {
+      redirect: 'follow',
       headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': '*/*'
       }
     });
 
-    if (!response.ok) throw new Error(`Public Data Service failed: ${response.statusText}`);
-
-    const data = await response.json();
-    // The structure for this endpoint is in data._embedded.results
-    const records = data._embedded?.results || [];
-
-    if (records.length === 0) {
-      return NextResponse.json({ success: true, message: "No records found on public frontend service." });
+    if (!response.ok) {
+      throw new Error(`Download failed: ${response.status}`);
     }
 
-    const formattedRecords = records.map((opp: any) => ({
-      notice_id: opp.noticeId || opp._id,
-      title: opp.title,
-      department: opp.organizationLocation?.rawName || opp.agencyName,
-      naics_code: opp.naicsCode,
-      posted_date: opp.publishDate,
-      close_date: opp.responseDate,
-      description: opp.description,
-      url: `https://sam.gov/opp/${opp.noticeId || opp._id}/view`
-    }));
+    // CRITICAL FIX: handle as binary, not text
+    const buffer = await response.arrayBuffer();
+
+    if (!buffer || buffer.byteLength === 0) {
+      return NextResponse.json({
+        success: false,
+        message: 'Empty file returned (SAM blocking or no data)'
+      });
+    }
+
+    // Convert buffer → string safely
+    const text = new TextDecoder('utf-8').decode(buffer);
+
+    // quick sanity check
+    if (!text.includes(',')) {
+      return NextResponse.json({
+        success: false,
+        message: 'Downloaded file is not CSV',
+        preview: text.substring(0, 300)
+      });
+    }
+
+    const rows = text.split('\n');
+    const headers = rows[0].split(',');
+
+    let count = 0;
+
+    const data = rows.slice(1).map((line) => {
+      const cols = line.split(',');
+
+      return {
+        notice_id: cols[headers.indexOf('NoticeId')],
+        title: cols[headers.indexOf('Title')],
+        department: cols[headers.indexOf('Department/Ind.Agency')],
+        naics_code: cols[headers.indexOf('NaicsCode')],
+        posted_date: cols[headers.indexOf('PostedDate')],
+        close_date: cols[headers.indexOf('ResponseDeadLine')],
+        description: cols[headers.indexOf('Description')],
+        url: cols[headers.indexOf('LinkToUi')]
+      };
+    }).filter(r => r.notice_id);
+
+    if (data.length === 0) {
+      return NextResponse.json({
+        success: false,
+        message: 'CSV parsed but no usable rows',
+        preview: text.substring(0, 300)
+      });
+    }
 
     const { error } = await supabase
       .from('sam_opportunities')
-      .upsert(formattedRecords, { onConflict: 'notice_id' });
+      .upsert(data, { onConflict: 'notice_id' });
 
     if (error) throw error;
 
-    return NextResponse.json({ 
-      success: true, 
-      message: `Sync complete. Upserted ${formattedRecords.length} records from public frontend.` 
+    count = data.length;
+
+    return NextResponse.json({
+      success: true,
+      message: `Upserted ${count} records`
     });
 
   } catch (error) {
-    return NextResponse.json({ error: 'Sync failed', details: String(error) }, { status: 500 });
+    return NextResponse.json({
+      error: 'Sync failed',
+      details: String(error)
+    }, { status: 500 });
   }
 }
