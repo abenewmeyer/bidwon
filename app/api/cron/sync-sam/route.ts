@@ -1,59 +1,3 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-function parseCSV(text: string) {
-  const results: string[][] = [];
-  let currentField = '';
-  let currentRow: string[] = [];
-  let inQuotes = false;
-  
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    const nextChar = text[i + 1];
-    
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
-        currentField += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      currentRow.push(currentField);
-      currentField = '';
-    } else if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (char === '\r' && nextChar === '\n') i++; 
-      currentRow.push(currentField);
-      if (currentRow.some(field => field !== '')) results.push(currentRow);
-      currentRow = [];
-      currentField = '';
-    } else {
-      currentField += char;
-    }
-  }
-  
-  if (currentRow.length > 0 || currentField !== '') {
-    currentRow.push(currentField);
-    results.push(currentRow);
-  }
-  
-  if (results.length < 2) return [];
-  
-  const headers = results[0].map(h => h.trim());
-  return results.slice(1).map(row => {
-    const obj: Record<string, string> = {};
-    headers.forEach((h, index) => {
-      obj[h] = row[index] ? row[index].trim() : '';
-    });
-    return obj;
-  });
-}
-
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -63,10 +7,26 @@ export async function GET(request: Request) {
   const samExtractUrl = 'https://sam.gov/api/prod/fileextractservices/v1/api/download/Active%20Opportunities';
   
   try {
-    const response = await fetch(samExtractUrl);
+    // Added User-Agent to mimic a browser
+    const response = await fetch(samExtractUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+
     if (!response.ok) throw new Error(`Failed to fetch from SAM: ${response.statusText}`);
 
     const rawText = await response.text();
+    
+    // Check if we actually got content
+    if (!rawText || rawText.trim().length === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "SAM returned an empty body. Possible bot block.",
+        status: response.status
+      });
+    }
+
     const records = parseCSV(rawText);
 
     if (records.length === 0) {
