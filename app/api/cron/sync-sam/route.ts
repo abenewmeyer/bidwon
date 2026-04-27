@@ -6,7 +6,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Native CSV parser to avoid requiring external npm packages
 function parseCSV(text: string) {
   const results: string[][] = [];
   let currentField = '';
@@ -20,7 +19,7 @@ function parseCSV(text: string) {
     if (char === '"') {
       if (inQuotes && nextChar === '"') {
         currentField += '"';
-        i++; // Skip escaped quote
+        i++;
       } else {
         inQuotes = !inQuotes;
       }
@@ -28,7 +27,7 @@ function parseCSV(text: string) {
       currentRow.push(currentField);
       currentField = '';
     } else if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (char === '\r' && nextChar === '\n') i++; // Handle \r\n
+      if (char === '\r' && nextChar === '\n') i++; 
       currentRow.push(currentField);
       if (currentRow.some(field => field !== '')) results.push(currentRow);
       currentRow = [];
@@ -67,8 +66,16 @@ export async function GET(request: Request) {
     const response = await fetch(samExtractUrl);
     if (!response.ok) throw new Error(`Failed to fetch from SAM: ${response.statusText}`);
 
-    const csvText = await response.text();
-    const records = parseCSV(csvText);
+    const rawText = await response.text();
+    const records = parseCSV(rawText);
+
+    if (records.length === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "0 records parsed.", 
+        raw_preview: rawText.substring(0, 500) 
+      });
+    }
 
     let upsertedCount = 0;
     const batchSize = 100;
@@ -89,11 +96,7 @@ export async function GET(request: Request) {
         .from('sam_opportunities')
         .upsert(batch, { onConflict: 'notice_id', ignoreDuplicates: false });
 
-      if (error) {
-        console.error('Batch error:', error);
-      } else {
-        upsertedCount += batch.length;
-      }
+      if (!error) upsertedCount += batch.length;
     }
 
     return NextResponse.json({ 
@@ -102,7 +105,6 @@ export async function GET(request: Request) {
     });
 
   } catch (error) {
-    console.error('Sync failed:', error);
     return NextResponse.json({ error: 'Sync failed', details: String(error) }, { status: 500 });
   }
 }
